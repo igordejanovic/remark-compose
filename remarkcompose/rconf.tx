@@ -1,0 +1,17 @@
+/*
+    textX grammar for RConf files.
+*/
+
+RConfFile:
+    'template' template=STRING
+    rules*=Rule
+;
+
+Rule:
+    input_file=STRING ('=>' output_file=STRING)?
+        params*=Param
+;
+
+Param:
+    name=ID '=' value=BASETYPE
+;

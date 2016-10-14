@@ -1,0 +1,2 @@
+class RComposeException(Exception):
+    pass
