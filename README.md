@@ -19,7 +19,7 @@
 ## Installation
 
 
-    $ pip install remark-compose
+    $ pip install https://github.com/igordejanovic/remark-compose/archive/master.zip
 
 
 ## Usage
