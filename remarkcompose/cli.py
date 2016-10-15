@@ -102,7 +102,6 @@ def _internal_build(rconf_file):
             output_file = os.path.join(output_file,
                                        "{}.html".format(base_name))
 
-        logger.info(output_file)
         click.echo(output_file)
 
         with open(output_file, 'w') as f:
