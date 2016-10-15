@@ -4,7 +4,7 @@
 
 ## What does it do?
 
-- Generates remark slides from HTML template and markdown files.
+- Generates remark slides from HTML template and pure markdown files.
 - Live server that watch for changes in template and markdown files and 
   do output HTML regeneration. 
 
@@ -14,6 +14,8 @@
   clutter. That way I can concentrate on slides content.
 - I like to change my remark configuration and HTML container in one place and
   have it consistently applied to all my slides.
+- I like to have all output files automatically rebuilt on input change so
+  I can see slide rendered in the browser as soon as I save input .md file.
 
 
 ## Installation
@@ -24,10 +26,10 @@
 
 ## Usage
 
-Write `myconf.rconf` file. Rconf is a DSL for generator configuration consisting
-of `template` path and a set of rules.
+Write `myconf.rconf` file. Rconf is a DSL for generator configuration
+consisting of generator parameters and a set of rules.
 
-      template "path/to/template.html"
+      template = "path/to/template.html"
 
       "input/firstfile.md"
         title = "Title for first slide"
@@ -35,9 +37,11 @@ of `template` path and a set of rules.
       "input/secondfile.md" => "output/second_file_with_custom_out_name.html"
         title = "Title for second slide"
 
+        // Override template for this rule
+        template = "path/to/other_template.html"
+
       "input2/*.md" => "output/"
         custom_param = "Some value"
-
 
 Each `.rconf` rule defines input file (or [glob2
 pattern](https://github.com/miracle2k/python-glob2/)) and optionally output
@@ -46,12 +50,17 @@ same base name but '.html' extension. Output can be directory in which case
 full output name is created by adding the base name of the input and '.html'
 extension.
 
-Each rule may contains arbitrary number of additional parameters to the
-template. E.g. in previous example we use it for `title` and `custom_param`.
-These params will be passed to template context.
+Each rule may contains arbitrary number of additional parameters. Rule
+parameters will override global parameters. `template` parameter is used to
+define Jinja2 template which shall be used for output file generation. Usually
+we have the same template for all rules and we shall define it globally.
 
-In `myconf.rconf` specify path to HTML template. The content of `.md` files will
-be rendered at the place of `{{content}}` tag inside HTML template.
+All parameters, either rule level or global level are passed to the template
+context so you can reference them from the template. E.g. in the previous
+example we use it for `title` and `custom_param`. 
+
+The content of input `.md` files will be rendered at the place of `{{content}}`
+tag inside HTML template.
 
 For example, HTML template might look like:
 
@@ -88,8 +97,6 @@ For example, HTML template might look like:
     </body>
 </html>
 ```
-
-
 
 
 Now, to rebuild your HTML files run:

@@ -36,6 +36,22 @@ def _load_rconf(rconf_file):
     return get_rconf_meta().model_from_file(rconf_file)
 
 
+def _get_param(obj, name):
+
+    for p in obj.params:
+        if p.name == name:
+            return p.value
+
+    # If this object has parent than it is rule.
+    # Continue search on the model level.
+    if hasattr(obj, "parent"):
+        for p in obj.parent.params:
+            if p.name == name:
+                return p.value
+
+    raise RComposeException('"{}" parameter is not defined.'.format(name))
+
+
 @click.command()
 @click.argument('rconf_file')
 @click.option('-p', '--port', default=9090,
@@ -50,14 +66,21 @@ def serve(rconf_file, port):
         def do_build():
             _internal_build(rconf_file)
 
-        input_files = []
+        watch_files = set()
+
+        template_file = _get_param(rconf_model, "template")
+        if template_file:
+            watch_files.add(template_file)
+
         for rule in rconf_model.rules:
-            input_files.extend(_find_files(rule.input_file))
+            watch_files.update(_find_files(rule.input_file))
+
+            # Add template file if the rule overrides global template
+            watch_files.add(_get_param(rconf_model, "template"))
 
         server = livereload.Server()
-        for f in input_files:
+        for f in watch_files:
             server.watch(f, do_build)
-        server.watch(rconf_model.template, do_build)
 
         server.serve(port=port)
 
@@ -81,12 +104,9 @@ def _internal_build(rconf_file):
 
     rconf_model = _load_rconf(rconf_file)
 
-    with open(rconf_model.template, 'r') as f:
-        t = jinja2.Template(f.read())
+    click.echo("Building output files...")
 
-    click.echo("Build HTML files...")
-
-    def _gen_html(input_file, params, output_file):
+    def _gen_html(input_file, template, params, output_file):
 
         with open(input_file, 'r') as f:
             content = f.read()
@@ -105,10 +125,19 @@ def _internal_build(rconf_file):
         click.echo(output_file)
 
         with open(output_file, 'w') as f:
-            f.write(t.render(**params))
+            f.write(template.render(**params))
+
+    global_params = {p.name: p.value for p in rconf_model.params}
 
     for rule in rconf_model.rules:
-        params = {p.name: p.value for p in rule.params}
+        rule_params = {p.name: p.value for p in rule.params}
+
+        # Take global params and override with rule params
+        params = dict(global_params)
+        params.update(rule_params)
+
+        with open(_get_param(rule, "template"), 'r') as f:
+            t = jinja2.Template(f.read())
 
         for f in _find_files(rule.input_file):
-            _gen_html(f, params, rule.output_file)
+            _gen_html(f, t, params, rule.output_file)
