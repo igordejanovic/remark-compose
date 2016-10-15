@@ -58,10 +58,12 @@ setup(
         ]
     },
     classifiers=[
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'Intended Audience :: Information Technology',
         'Intended Audience :: Science/Research',
-        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Multimedia :: Graphics :: Presentation',
+        'Topic :: Software Development :: Build Tools',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
