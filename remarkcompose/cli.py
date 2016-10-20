@@ -46,20 +46,24 @@ def serve(rconf_file, port):
         rconf_model = _load_rconf(rconf_file)
 
         def do_build():
+            """Callback triggered when file change is detected."""
             _internal_build(rconf_file)
 
         watch_files = set()
 
+        # Add template defined on the rconf model level to the
+        # list of watched files.
         template_file = _get_param(rconf_model, "template")
         if template_file:
             watch_files.add(_get_from_rel(template_file))
 
+        # Add all input files to the list of watched files together
+        # with rule-level defined template if any.
         for rule in rconf_model.rules:
             watch_files.update(_find_files(rule.input_file,
                                            parent=rconf_file,
                                            strip_parent=False))
 
-            # Add template file if the rule overrides global template
             watch_files.add(_get_from_rel(_get_param(rconf_model, "template")))
 
         server = livereload.Server()
