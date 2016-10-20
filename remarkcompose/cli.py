@@ -107,6 +107,10 @@ def _internal_build(rconf_file):
 
         # Content input file is processed by template engine
         params['now'] = datetime.now()
+
+        # Remark uses `{{content}}` for reference of the place to insert new
+        # content on partial slides. Do not change that.
+        params['content'] = '{{content}}'
         content = jinja_env.get_template(input_file).render(**params)
 
         # Pass rendered input as the parameter to output html template
