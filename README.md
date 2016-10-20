@@ -60,7 +60,7 @@ context so you can reference them from the template. E.g. in the previous
 example we use it for `title` and `custom_param`. 
 
 The content of input `.md` files will be rendered at the place of `{{content}}`
-tag inside HTML template.
+tag inside HTML template. 
 
 For example, HTML template might look like:
 
@@ -121,8 +121,17 @@ or:
 
 # Note
 
-Although it is motivated by remark slides it doesn't depend on remark in any
-way. You can use it for merging arbitrary files.
+- All input files are treated as jinja2 templates also with the same context
+  given to the base template file. Currently there is variable `now` in the
+  template context of `datetime` type. You can use it to render date/time when
+  the slides were built.
+
+  In your markdown file you could have:
+
+      Created on {{now|dtformat("%d.%m.%Y %H:%M")}}
+
+- Although it is motivated by remark slides it doesn't depend on remark in any
+  way. You can use it with other html/javascript slides creation lib.
 
 ## LICENSE
 
