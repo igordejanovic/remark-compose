@@ -26,16 +26,16 @@
 
 ## Usage
 
-Write `myconf.rconf` file. Rconf is a DSL for generator configuration
-consisting of generator parameters and a set of rules.
+Write `myconf.rconf` file. Rconf is a simple DSL for the generator
+configuration consisting of global generator parameters and a set of rules.
 
       template = "path/to/template.html"
 
       "input/firstfile.md"
-        title = "Title for first slide"
+        title = "Title for the first slide"
 
       "input/secondfile.md" => "output/second_file_with_custom_out_name.html"
-        title = "Title for second slide"
+        title = "Title for the second slide"
 
         // Override template for this rule
         template = "path/to/other_template.html"
@@ -45,12 +45,12 @@ consisting of generator parameters and a set of rules.
 
 Each `.rconf` rule defines input file (or [glob2
 pattern](https://github.com/miracle2k/python-glob2/)) and optionally output
-file. If output file is not given it will default to the same directory and
-same base name but '.html' extension. Output can be directory in which case
-full output name is created by adding the base name of the input and '.html'
-extension.
+file after `=>`. If output file is not given it will default to the same
+directory and the same base name but using `.html` extension. Output can be
+directory in which case full output name is created by adding the base name of
+the input and `.html` extension.
 
-Each rule may contains arbitrary number of additional parameters. Rule
+Each rule may contain arbitrary number of additional parameters. Rule
 parameters will override global parameters. `template` parameter is used to
 define Jinja2 template which shall be used for output file generation. Usually
 we have the same template for all rules and we shall define it globally.
@@ -104,7 +104,7 @@ Now, to rebuild your HTML files run:
     $ remarkc build myconf
 
 
-To start live server:
+To start a live server with auto-rebuild:
 
     $ remarkc serve myconf
 
@@ -121,14 +121,14 @@ or:
 
 # Note
 
-- All input files are treated as jinja2 templates also with the same context
-  given to the base template file. Currently there is variable `now` in the
+- All input files are treated as jinja2 templates with the same context given
+  to the base template file. Currently, there is a variable `now` in the
   template context of `datetime` type. You can use it to render date/time when
   the slides were built.
 
   In your markdown file you could have:
 
-      Created on {{now|dtformat("%d.%m.%Y %H:%M")}}
+      Created on {{now}}
 
 - Although it is motivated by remark slides it doesn't depend on remark in any
   way. You can use it with other html/javascript slides creation lib.
