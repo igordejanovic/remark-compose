@@ -31,7 +31,9 @@ jinja_env = None
 @click.argument('rconf_file')
 @click.option('-p', '--port', default=9090,
               help='Port to listen to. Default is 9090.')
-def serve(rconf_file, port):
+@click.option('-f', '--force', default=False, is_flag=True,
+              help='Build all files always. Don\'t check file update time.')
+def serve(rconf_file, port, force):
     """
     Watch input markdown files for change and regenerates target files.
     """
@@ -47,7 +49,7 @@ def serve(rconf_file, port):
 
         def do_build():
             """Callback triggered when file change is detected."""
-            _internal_build(rconf_file)
+            _internal_build(rconf_file, force)
 
         watch_files = set()
 
@@ -70,6 +72,10 @@ def serve(rconf_file, port):
         for f in watch_files:
             server.watch(f, do_build)
 
+        # Build if necessary
+        do_build()
+
+        # Start server
         server.serve(port=port, root=os.path.dirname(rconf_file))
 
     except RComposeException as e:
@@ -78,18 +84,20 @@ def serve(rconf_file, port):
 
 @click.command()
 @click.argument('rconf_file')
-def build(rconf_file):
+@click.option('-f', '--force', default=False, is_flag=True,
+              help='Build all files. Don\'t check file update time.')
+def build(rconf_file, force):
     """
     Generates target html files from markdown files and HTML template.
     """
 
     try:
-        _internal_build(rconf_file)
+        _internal_build(rconf_file, force)
     except RComposeException as e:
         click.echo(e)
 
 
-def _internal_build(rconf_file):
+def _internal_build(rconf_file, force=False):
 
     global jinja_env
 
@@ -107,21 +115,10 @@ def _internal_build(rconf_file):
     click.echo("Building output files...")
 
     def _gen_html(input_file, main_template, params, output_file):
+
         global jinja_env
 
-        # Content input file is processed by template engine
-        params['now'] = datetime.now()
-
-        # Remark uses `{{content}}` for reference of the place to insert new
-        # content on partial slides. Do not change that.
-        params['content'] = '{{content}}'
-        content = jinja_env.get_template(input_file).render(**params)
-
-        # Pass rendered input as the parameter to output html template
-        params['content'] = content
-
         # Calculate output file name
-
         base_name = os.path.basename(input_file)
         base_name = os.path.splitext(base_name)[0]
 
@@ -133,6 +130,27 @@ def _internal_build(rconf_file):
         elif os.path.isdir(output_file):
             output_file = os.path.join(output_file,
                                        "{}.html".format(base_name))
+
+        if not force and os.path.exists(output_file):
+            # Do not build file if output is newer than input and template
+            ofile_mtime = os.path.getmtime(output_file)
+            ifile_mtime = os.path.getmtime(
+                os.path.join(os.path.dirname(rconf_file), input_file))
+            tfile_mtime = os.path.getmtime(
+                os.path.join(os.path.dirname(rconf_file), main_template))
+            if ofile_mtime > ifile_mtime and ofile_mtime > tfile_mtime:
+                return
+
+        # Content input file is processed by template engine
+        params['now'] = datetime.now()
+
+        # Remark uses `{{content}}` for reference of the place to insert new
+        # content on partial slides. Do not change that.
+        params['content'] = '{{content}}'
+        content = jinja_env.get_template(input_file).render(**params)
+
+        # Pass rendered input as the parameter to output html template
+        params['content'] = content
 
         click.echo(output_file)
 
