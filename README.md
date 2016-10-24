@@ -20,8 +20,18 @@
 
 ## Installation
 
+- Create and activate Python virtual environment (recommended):
 
-    $ pip install https://github.com/igordejanovic/remark-compose/archive/master.zip
+      $ virtualenv venv        
+      New python executable in /home/igor/tmp/rmctest/venv/bin/python3
+      Also creating executable in /home/igor/tmp/rmctest/venv/bin/python
+      Installing setuptools, pip, wheel...done.
+      
+      $ source venv/bin/activate
+
+- Install/upgrade remark-compose:
+
+      $ pip install --upgrade  https://github.com/igordejanovic/remark-compose/archive/master.zip
 
 
 ## Usage
