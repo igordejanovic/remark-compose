@@ -7,15 +7,21 @@
 - Generates remark slides from HTML template and pure markdown files.
 - Live server that watch for changes in template and markdown files and 
   do output HTML regeneration. 
+- Generates only what needs to be generated (like make).
 
 ## Why?
 
-- I like to edit remark slides in pure markdown files without HTML container
-  clutter. That way I can concentrate on slides content.
-- I like to change my remark configuration and HTML container in one place and
-  have it consistently applied to all my slides.
-- I like to have all output files automatically rebuilt on input change so
-  I can see slide rendered in the browser as soon as I save input .md file.
+- Using markdown inside HTML you lose editor support like syntax highlighting,
+  code outline etc. as your file is treated as HTML only. Some editors could be
+  configured for multi-content editing but it is usually not that easy.
+- Although, you could import all your css and js files in your HTML file and
+  centralise style/configuration you will often have to alter HTML directly. And
+  that is painful if you are building a large number of slide decks and would
+  like them to be consistent.
+- It is just nicer to have pure markdown files.
+- As a side-effect of using this approach even your markdown content can be
+  treated as template and some dynamic content can be injected at build time.
+  See `Note` section bellow.
 
 
 ## Installation
