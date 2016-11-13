@@ -1,9 +1,11 @@
+# -*- encoding: utf-8 -*-
 import os
 import sys
 import click
 import livereload
 import jinja2
 import glob2
+import codecs
 from datetime import datetime
 from .rconf import get_rconf_meta
 from .exceptions import RComposeException
@@ -155,7 +157,7 @@ def _internal_build(rconf_file, force=False):
         click.echo(output_file)
 
         t = jinja_env.get_template(main_template)
-        with open(output_file, 'w') as f:
+        with codecs.open(output_file, 'w', 'utf-8') as f:
             f.write(t.render(**params))
 
     global_params = {p.name: p.value for p in rconf_model.params}
