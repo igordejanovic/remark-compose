@@ -54,6 +54,7 @@ def serve(rconf_file, port, force):
             _internal_build(rconf_file, force)
 
         watch_files = set()
+        watch_files.add(rconf_file)
 
         # Add template defined on the rconf model level to the
         # list of watched files.
@@ -140,7 +141,9 @@ def _internal_build(rconf_file, force=False):
                 os.path.join(os.path.dirname(rconf_file), input_file))
             tfile_mtime = os.path.getmtime(
                 os.path.join(os.path.dirname(rconf_file), main_template))
-            if ofile_mtime > ifile_mtime and ofile_mtime > tfile_mtime:
+            rconf_mtime = os.path.getmtime(rconf_file)
+            if ofile_mtime > rconf_mtime and ofile_mtime > ifile_mtime \
+               and ofile_mtime > tfile_mtime:
                 return
 
         # Content input file is processed by template engine
