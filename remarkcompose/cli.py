@@ -68,7 +68,7 @@ def serve(rconf_file, port, force):
                                            parent=rconf_file,
                                            strip_parent=False))
 
-            watch_files.add(_get_from_rel(_get_param(rconf_model, "template")))
+            watch_files.add(_get_from_rel(_get_param(rule, "template")))
 
         server = livereload.Server()
         for f in watch_files:
