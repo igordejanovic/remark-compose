@@ -2,7 +2,7 @@
 
 [Remark](https://remarkjs.com/) slide builder.
 
-## What does it do?
+## What it does?
 
 - Generates remark slides from HTML template and pure markdown files/templates.
 - Live server that watch for changes in template and markdown files and do
@@ -38,12 +38,14 @@
 
   For example:
   
-      # {{ title }}
-      {% if subtitle %}
-      ## {{ subtitle }}
-      {% endif %}
+```django
+# {{ title }}
+{% if subtitle %}
+## {{ subtitle }}
+{% endif %}
 
-      Created on {{now|dtformat("%d.%m.%Y %H:%M")}}
+Created on {{now|dtformat("%d.%m.%Y %H:%M")}}
+```
 
 - Although it is motivated by remark it doesn't depend on remark in any way. You
   can use it with other html/javascript slides creation tools.
@@ -165,7 +167,7 @@ or:
 - `Technology set` of slides (in Serbian language):
   - [rconf file for the set](https://github.com/igordejanovic/igordejanovic.github.io/blob/master/courses/tech.rconf)
   - [template.html for the set](https://github.com/igordejanovic/igordejanovic.github.io/blob/master/courses/template.html)
-  - [base slides markdown template](https://github.com/igordejanovic/igordejanovic.github.io/blob/master/courses/base_slides.md)
+  - [base slides markdown template](https://raw.githubusercontent.com/igordejanovic/igordejanovic.github.io/master/courses/base_slides.md)
   - [Python slides](http://igordejanovic.net/courses/tech/Python.html) -
     [source](https://raw.githubusercontent.com/igordejanovic/igordejanovic.github.io/master/courses/tech/Python.md),
     [generated](https://github.com/igordejanovic/igordejanovic.github.io/blob/master/courses/tech/Python.html)
