@@ -1,0 +1,4 @@
+venv
+*.pyc
+.ropeproject
+remark_compose.egg-info/
