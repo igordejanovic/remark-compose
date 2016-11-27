@@ -51,7 +51,7 @@ def serve(rconf_file, port, force):
 
         def do_build():
             """Callback triggered when file change is detected."""
-            _internal_build(rconf_file, force)
+            _internal_build(rconf_file, force, port=port)
 
         watch_files = set()
         watch_files.add(rconf_file)
@@ -100,7 +100,14 @@ def build(rconf_file, force):
         click.echo(e)
 
 
-def _internal_build(rconf_file, force=False):
+def _internal_build(rconf_file, force=False, port=None):
+    """
+    Build all output file for changed input files.
+    Args:
+        rconf_file(path): rconf file to use
+        force (bool): Build all files, don't check modification time.
+        port (int): If in server mode this is the server TCP port.
+    """
 
     global jinja_env
 
@@ -157,7 +164,10 @@ def _internal_build(rconf_file, force=False):
         # Pass rendered input as the parameter to output html template
         params['content'] = content
 
-        click.echo(output_file)
+        if port:
+            click.echo('http://127.0.0.1:%s/%s' % (port, output_file))
+        else:
+            click.echo(output_file)
 
         t = jinja_env.get_template(main_template)
         with codecs.open(output_file, 'w', 'utf-8') as f:
@@ -173,7 +183,8 @@ def _internal_build(rconf_file, force=False):
         params.update(rule_params)
 
         for f in _find_files(rule.input_file, parent=rconf_file):
-            _gen_html(f, _get_param(rule, "template"), params, rule.output_file)
+            _gen_html(f, _get_param(rule, "template"), params,
+                      rule.output_file)
 
 
 def _find_files(glob_pattern, parent=None, strip_parent=True):
