@@ -50,6 +50,7 @@ setup(
     url = URL,
     download_url = DOWNLOAD_URL,
     packages = ["remarkcompose"],
+    include_package_data=True,
     install_requires = ["click", "glob2", "textX", "livereload", "Jinja2"],
     keywords = "markdown presentation slides",
     entry_points={
