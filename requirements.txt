@@ -1,0 +1,6 @@
+textX
+click
+livereload
+glob2
+Jinja2
+
