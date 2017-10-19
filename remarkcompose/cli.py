@@ -22,6 +22,7 @@ class RComposeCLI(click.MultiCommand):
             raise RComposeException('Unknown command "{}".'.format(name))
         return getattr(this_module, name)
 
+
 remarkc = RComposeCLI(
     help='Remark slides building from template with live HTTP server.')
 
@@ -49,9 +50,10 @@ def serve(rconf_file, port, force):
     try:
         rconf_model = _load_rconf(rconf_file)
 
-        def do_build():
+        def do_build(report_files=False):
             """Callback triggered when file change is detected."""
-            _internal_build(rconf_file, force, port=port)
+            _internal_build(rconf_file, force, port=port,
+                            report_files=report_files)
 
         watch_files = set()
         watch_files.add(rconf_file)
@@ -76,7 +78,7 @@ def serve(rconf_file, port, force):
             server.watch(f, do_build)
 
         # Build if necessary
-        do_build()
+        do_build(report_files=True)
 
         # Start server
         server.serve(port=port, root=os.path.dirname(rconf_file))
@@ -100,13 +102,15 @@ def build(rconf_file, force):
         click.echo(e)
 
 
-def _internal_build(rconf_file, force=False, port=None):
+def _internal_build(rconf_file, force=False, port=None, report_files=False):
     """
     Build all output file for changed input files.
     Args:
         rconf_file(path): rconf file to use
         force (bool): Build all files, don't check modification time.
         port (int): If in server mode this is the server TCP port.
+        report_file(bool): If all file links should be reported
+            (used on startup).
     """
 
     global jinja_env
@@ -141,6 +145,7 @@ def _internal_build(rconf_file, force=False, port=None):
             output_file = os.path.join(output_file,
                                        "{}.html".format(base_name))
 
+        rebuild = True
         if not force and os.path.exists(output_file):
             # Do not build file if output is newer than input and template
             ofile_mtime = os.path.getmtime(output_file)
@@ -151,7 +156,7 @@ def _internal_build(rconf_file, force=False, port=None):
             rconf_mtime = os.path.getmtime(rconf_file)
             if ofile_mtime > rconf_mtime and ofile_mtime > ifile_mtime \
                and ofile_mtime > tfile_mtime:
-                return
+                rebuild = False
 
         # Content input file is processed by template engine
         params['now'] = datetime.now()
@@ -164,14 +169,16 @@ def _internal_build(rconf_file, force=False, port=None):
         # Pass rendered input as the parameter to output html template
         params['content'] = content
 
-        if port:
-            click.echo('http://127.0.0.1:%s/%s' % (port, output_file))
-        else:
-            click.echo(output_file)
+        if rebuild or report_files:
+            if port:
+                click.echo('http://127.0.0.1:%s/%s' % (port, output_file))
+            else:
+                click.echo(output_file)
 
-        t = jinja_env.get_template(main_template)
-        with codecs.open(output_file, 'w', 'utf-8') as f:
-            f.write(t.render(**params))
+        if rebuild:
+            t = jinja_env.get_template(main_template)
+            with codecs.open(output_file, 'w', 'utf-8') as f:
+                f.write(t.render(**params))
 
     global_params = {p.name: p.value for p in rconf_model.params}
 
